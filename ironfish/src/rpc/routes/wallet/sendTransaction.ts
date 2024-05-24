@@ -77,7 +77,7 @@ routes.register<typeof SendTransactionRequestSchema, SendTransactionResponse>(
   `${ApiNamespace.wallet}/sendTransaction`,
   SendTransactionRequestSchema,
   async (request, context): Promise<void> => {
-    AssertHasRpcContext(request, context, 'wallet', 'assetsVerifier')
+    AssertHasRpcContext(request, context, 'wallet', 'assetsVerifier', 'config')
 
     Assert.isNotNull(context.wallet.nodeClient)
     const account = getAccount(context.wallet, request.data.account)
@@ -136,11 +136,11 @@ routes.register<typeof SendTransactionRequestSchema, SendTransactionResponse>(
       params.feeRate = CurrencyUtils.decode(request.data.feeRate)
     }
 
+    const confirmations = request.data.confirmations ?? context.config.get('confirmations')
+
     // Check that the node has enough balance
     for (const [assetId, sum] of totalByAssetId) {
-      const balance = await context.wallet.getBalance(account, assetId, {
-        confirmations: request.data.confirmations ?? undefined,
-      })
+      const balance = await account.getBalance(assetId, confirmations)
 
       if (balance.available < sum) {
         throw new RpcValidationError(

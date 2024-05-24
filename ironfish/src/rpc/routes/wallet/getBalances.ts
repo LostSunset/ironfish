@@ -89,15 +89,14 @@ routes.register<typeof GetBalancesRequestSchema, GetBalancesResponse>(
   `${ApiNamespace.wallet}/getBalances`,
   GetBalancesRequestSchema,
   async (request, context): Promise<void> => {
-    AssertHasRpcContext(request, context, 'wallet', 'assetsVerifier')
+    AssertHasRpcContext(request, context, 'wallet', 'assetsVerifier', 'config')
 
     const account = getAccount(context.wallet, request.data.account)
 
+    const confirmations = request.data.confirmations ?? context.config.get('confirmations')
+
     const balances = []
-    for await (const balance of context.wallet.getBalances(
-      account,
-      request.data.confirmations,
-    )) {
+    for await (const balance of account.getBalances(confirmations)) {
       if (request.closed) {
         return
       }

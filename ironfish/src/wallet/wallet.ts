@@ -809,50 +809,6 @@ export class Wallet {
     this.scan = null
   }
 
-  async *getBalances(
-    account: Account,
-    confirmations?: number,
-  ): AsyncGenerator<{
-    assetId: Buffer
-    unconfirmed: bigint
-    unconfirmedCount: number
-    pending: bigint
-    pendingCount: number
-    confirmed: bigint
-    available: bigint
-    blockHash: Buffer | null
-    sequence: number | null
-  }> {
-    confirmations = confirmations ?? this.config.get('confirmations')
-
-    this.assertHasAccount(account)
-
-    for await (const balance of account.getBalances(confirmations)) {
-      yield balance
-    }
-  }
-
-  async getBalance(
-    account: Account,
-    assetId: Buffer,
-    options?: { confirmations?: number },
-  ): Promise<{
-    unconfirmedCount: number
-    unconfirmed: bigint
-    confirmed: bigint
-    pendingCount: number
-    pending: bigint
-    available: bigint
-    blockHash: Buffer | null
-    sequence: number | null
-  }> {
-    const confirmations = options?.confirmations ?? this.config.get('confirmations')
-
-    this.assertHasAccount(account)
-
-    return account.getBalance(assetId, confirmations)
-  }
-
   async send(options: {
     account: Account
     outputs: TransactionOutput[]

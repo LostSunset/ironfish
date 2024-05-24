@@ -47,7 +47,7 @@ describe('Wallet', () => {
 
     // Check nodeA balance
     await nodeA.wallet.updateHead()
-    await expect(nodeA.wallet.getBalance(accountA, Asset.nativeId())).resolves.toMatchObject({
+    await expect(accountA.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: BigInt(2000000000),
       unconfirmed: BigInt(2000000000),
     })
@@ -76,7 +76,7 @@ describe('Wallet', () => {
     })
 
     await nodeA.wallet.updateHead()
-    await expect(nodeA.wallet.getBalance(accountA, Asset.nativeId())).resolves.toMatchObject({
+    await expect(accountA.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: BigInt(0),
       unconfirmed: BigInt(0),
     })
@@ -134,9 +134,7 @@ describe('Wallet', () => {
       accountA['walletDb'].loadNotesNotOnChain(accountA),
     )
     // set confirmations so that balance considers confirmations
-    const balanceA = await nodeA.wallet.getBalance(accountA, Asset.nativeId(), {
-      confirmations: 2,
-    })
+    const balanceA = await accountA.getBalance(Asset.nativeId(), 2)
 
     expect(balanceA.confirmed).toBeGreaterThanOrEqual(0n)
     expect(notesOnChainA.length).toEqual(0)
@@ -172,7 +170,7 @@ describe('Wallet', () => {
     await expect(nodeA.chain).toAddBlock(blockA2)
     await nodeA.wallet.updateHead()
 
-    await expect(nodeA.wallet.getBalance(accountA, Asset.nativeId())).resolves.toMatchObject({
+    await expect(accountA.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: BigInt(1999999998),
       unconfirmed: BigInt(1999999998),
     })
@@ -187,7 +185,7 @@ describe('Wallet', () => {
     expect(nodeA.chain.head.hash.equals(blockB3.header.hash)).toBe(true)
     await nodeA.wallet.updateHead()
 
-    await expect(nodeA.wallet.getBalance(accountA, Asset.nativeId())).resolves.toMatchObject({
+    await expect(accountA.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: BigInt(0),
       unconfirmed: BigInt(0),
     })
@@ -436,7 +434,7 @@ describe('Wallet', () => {
         confirmed,
         unconfirmed,
         unconfirmedCount,
-      } of node.wallet.getBalances(account)) {
+      } of account.getBalances(0)) {
         balances.set(assetId, { confirmed, unconfirmed, unconfirmedCount })
       }
 
@@ -449,62 +447,6 @@ describe('Wallet', () => {
         confirmed: BigInt(10),
         unconfirmed: BigInt(10),
         unconfirmedCount: 0,
-      })
-    })
-  })
-
-  describe('getBalance', () => {
-    it('returns balances for unspent notes with minimum confirmations on the main chain', async () => {
-      const { node: nodeA } = await nodeTest.createSetup({
-        config: { confirmations: 2 },
-      })
-      const { node: nodeB } = await nodeTest.createSetup()
-      const accountA = await useAccountFixture(nodeA.wallet, 'accountA')
-      const accountB = await useAccountFixture(nodeB.wallet, 'accountB')
-
-      // G -> A1 -> A2 -> A3 -> A4 -> A5
-      //   -> B1 -> B2 -> B3 -> B4
-      const blockA1 = await useMinerBlockFixture(nodeA.chain, 2, accountA)
-      await nodeA.chain.addBlock(blockA1)
-      const blockA2 = await useMinerBlockFixture(nodeA.chain, 3, accountA)
-      await nodeA.chain.addBlock(blockA2)
-      const blockA3 = await useMinerBlockFixture(nodeA.chain, 4, accountA)
-      await nodeA.chain.addBlock(blockA3)
-      const blockA4 = await useMinerBlockFixture(nodeA.chain, 5, accountA)
-      await nodeA.chain.addBlock(blockA4)
-      const blockA5 = await useMinerBlockFixture(nodeA.chain, 6, accountA)
-      await nodeA.chain.addBlock(blockA5)
-
-      const blockB1 = await useMinerBlockFixture(nodeB.chain, 2, accountB)
-      await nodeB.chain.addBlock(blockB1)
-      const blockB2 = await useMinerBlockFixture(nodeB.chain, 3, accountB)
-      await nodeB.chain.addBlock(blockB2)
-      const blockB3 = await useMinerBlockFixture(nodeB.chain, 4, accountB)
-      await nodeB.chain.addBlock(blockB3)
-      const blockB4 = await useMinerBlockFixture(nodeB.chain, 5, accountB)
-      await nodeB.chain.addBlock(blockB4)
-
-      expect(nodeA.chain.head.hash.equals(blockA5.header.hash)).toBe(true)
-      expect(nodeB.chain.head.hash.equals(blockB4.header.hash)).toBe(true)
-
-      await nodeB.chain.addBlock(blockA1)
-      await nodeB.chain.addBlock(blockA2)
-      await nodeB.chain.addBlock(blockA3)
-      await nodeB.chain.addBlock(blockA4)
-      await nodeB.chain.addBlock(blockA5)
-
-      await nodeA.wallet.updateHead()
-      await nodeB.wallet.updateHead()
-
-      expect(nodeA.chain.head.hash.equals(blockA5.header.hash)).toBe(true)
-      expect(nodeB.chain.head.hash.equals(blockA5.header.hash)).toBe(true)
-
-      expect(await nodeA.wallet.getBalance(accountA, Asset.nativeId())).toMatchObject({
-        confirmed: BigInt(6000000000),
-        unconfirmed: BigInt(10000000000),
-      })
-      expect(await nodeB.wallet.getBalance(accountB, Asset.nativeId())).toMatchObject({
-        confirmed: BigInt(0),
       })
     })
   })

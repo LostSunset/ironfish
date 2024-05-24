@@ -77,9 +77,7 @@ routes.register<typeof GetBalanceRequestSchema, GetBalanceResponse>(
       assetId = Buffer.from(request.data.assetId, 'hex')
     }
 
-    const balance = await node.wallet.getBalance(account, assetId, {
-      confirmations,
-    })
+    const balance = await account.getBalance(assetId, confirmations)
 
     request.end({
       account: account.name,

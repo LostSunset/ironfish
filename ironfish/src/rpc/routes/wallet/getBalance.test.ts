@@ -23,7 +23,7 @@ describe('Route wallet/getBalance', () => {
       const account = await useAccountFixture(wallet, 'accountA')
 
       const getBalances = jest
-        .spyOn(wallet, 'getBalance')
+        .spyOn(account, 'getBalance')
         // eslint-disable-next-line @typescript-eslint/require-await
         .mockImplementationOnce(async (_account, _assetId, _options?) => {
           return {
@@ -71,7 +71,7 @@ describe('Route wallet/getBalance', () => {
       const asset = new Asset(account.publicAddress, 'mint-asset', 'metadata')
 
       const getBalances = jest
-        .spyOn(wallet, 'getBalance')
+        .spyOn(account, 'getBalance')
         // eslint-disable-next-line @typescript-eslint/require-await
         .mockImplementationOnce(async (_account, _assetId, _options?) => {
           return {
@@ -119,7 +119,7 @@ describe('Route wallet/getBalance', () => {
       const account = await useAccountFixture(wallet, 'accountC')
 
       const getBalances = jest
-        .spyOn(wallet, 'getBalance')
+        .spyOn(account, 'getBalance')
         // eslint-disable-next-line @typescript-eslint/require-await
         .mockImplementationOnce(async (_account, _assetId, _options?) => {
           return {

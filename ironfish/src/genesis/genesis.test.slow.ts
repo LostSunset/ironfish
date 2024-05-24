@@ -84,7 +84,7 @@ describe('Create genesis block', () => {
 
     // Balance should still be zero, since generating the block should clear out
     // any notes made in the process
-    await expect(node.wallet.getBalance(account, Asset.nativeId())).resolves.toMatchObject({
+    await expect(account.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: BigInt(0),
       unconfirmed: BigInt(0),
     })
@@ -96,7 +96,7 @@ describe('Create genesis block', () => {
     await node.wallet.updateHead()
 
     // Check that the balance is what's expected
-    await expect(node.wallet.getBalance(account, Asset.nativeId())).resolves.toMatchObject({
+    await expect(account.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: amount,
       unconfirmed: amount,
     })
@@ -132,9 +132,7 @@ describe('Create genesis block', () => {
     await newNode.wallet.updateHead()
     await newNode.wallet.scanTransactions()
 
-    await expect(
-      newNode.wallet.getBalance(accountNewNode, Asset.nativeId()),
-    ).resolves.toMatchObject({
+    await expect(accountNewNode.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: amount,
       unconfirmed: amount,
     })
@@ -252,9 +250,7 @@ describe('addGenesisTransaction', () => {
 
     // Balance should still be zero, since generating the block should clear out
     // any notes made in the process
-    await expect(
-      originalNode.wallet.getBalance(account1Original, Asset.nativeId()),
-    ).resolves.toMatchObject({
+    await expect(account1Original.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: BigInt(0),
       unconfirmed: BigInt(0),
     })
@@ -280,15 +276,15 @@ describe('addGenesisTransaction', () => {
     await node.wallet.updateHead()
 
     // Check that the balance is what's expected
-    await expect(node.wallet.getBalance(account1, Asset.nativeId())).resolves.toMatchObject({
+    await expect(account1.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: account1Amount,
       unconfirmed: account1Amount,
     })
-    await expect(node.wallet.getBalance(account2, Asset.nativeId())).resolves.toMatchObject({
+    await expect(account2.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: account2Amount,
       unconfirmed: account2Amount,
     })
-    await expect(node.wallet.getBalance(account3, Asset.nativeId())).resolves.toMatchObject({
+    await expect(account3.getBalance(Asset.nativeId(), 0)).resolves.toMatchObject({
       confirmed: account3Amount,
       unconfirmed: account3Amount,
     })
