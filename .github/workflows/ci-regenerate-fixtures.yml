@@ -1,6 +1,9 @@
 name: Node.js CI Regenerate Fixtures
 
 on:
+  push:
+    branches:
+      - chore/hughy/test-createdat-fixtures
   schedule:
     - cron: '0 15 * * 2' # Every Tuesday 7AM PST
 
