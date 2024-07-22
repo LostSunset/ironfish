@@ -1,6 +1,9 @@
 name: Node.js CI Regenerate Fixtures
 
 on:
+  push:
+    branches:
+      - 'test/hughy/regenerate-fixtures-fail-slack'
   schedule:
     - cron: '0 15 * * 2' # Every Tuesday 7AM PST
 
