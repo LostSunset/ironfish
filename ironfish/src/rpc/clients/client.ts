@@ -137,6 +137,8 @@ import type {
   GetPublicKeyResponse,
   GetRpcStatusRequest,
   GetRpcStatusResponse,
+  GetStorageAtRequest,
+  GetStorageAtResponse,
   GetTransactionByHashRequest,
   GetTransactionByHashResponse,
   GetTransactionCountRequest,
@@ -1053,6 +1055,14 @@ export abstract class RpcClient {
     },
     getCode: (params: GetCodeRequest): Promise<RpcResponseEnded<GetCodeResponse>> => {
       return this.request<GetCodeResponse>(`${ApiNamespace.eth}/getCode`, params).waitForEnd()
+    },
+    getStorageAt: (
+      params: GetStorageAtRequest,
+    ): Promise<RpcResponseEnded<GetStorageAtResponse>> => {
+      return this.request<GetStorageAtResponse>(
+        `${ApiNamespace.eth}/getStorageAt`,
+        params,
+      ).waitForEnd()
     },
     getTransactionByHash: (
       params: GetTransactionByHashRequest,
