@@ -367,6 +367,39 @@ export class WalletDB {
     })
   }
 
+  async setEncryptedAccount(
+    account: Account,
+    passphrase: string,
+    tx?: IDatabaseTransaction,
+  ): Promise<void> {
+    await this.db.withTransaction(tx, async (tx) => {
+      const accountsEncrypted = await this.accountsEncrypted(tx)
+      if (!accountsEncrypted) {
+        throw new Error('Cannot save encrypted account when accounts are decrypted')
+      }
+
+      const encryptedAccount = account.encrypt(passphrase)
+      await this.accounts.put(account.id, encryptedAccount.serialize(), tx)
+
+      const nativeUnconfirmedBalance = await this.balances.get(
+        [account.prefix, Asset.nativeId()],
+        tx,
+      )
+      if (nativeUnconfirmedBalance === undefined) {
+        await this.saveUnconfirmedBalance(
+          account,
+          Asset.nativeId(),
+          {
+            unconfirmed: 0n,
+            blockHash: null,
+            sequence: null,
+          },
+          tx,
+        )
+      }
+    })
+  }
+
   async removeAccount(account: Account, tx?: IDatabaseTransaction): Promise<void> {
     await this.db.withTransaction(tx, async (tx) => {
       await this.accounts.del(account.id, tx)
